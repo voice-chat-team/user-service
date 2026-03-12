@@ -9,10 +9,6 @@ export class PrismaService
   implements OnModuleInit, OnModuleDestroy
 {
   constructor(private readonly configServer: ConfigService) {
-    console.log(
-      'POSTGRES_HOST',
-      configServer.getOrThrow<string>('POSTGRES_HOST'),
-    );
     const adapter = new PrismaPg({
       host: configServer.getOrThrow<string>('POSTGRES_HOST'),
       port: configServer.getOrThrow<number>('POSTGRES_PORT'),
