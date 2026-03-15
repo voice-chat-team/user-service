@@ -1,19 +1,28 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/infrastructure/prisma/prisma.service';
+import { RpcException } from '@nestjs/microservices';
+import { User } from '@voice-chat/contracts/gen/user';
+import { UserRepository } from './user.repository';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly userRespository: UserRepository) {}
 
-  async getUserByEmail(email: string) {
-    return this.prisma.user.findUnique({ where: { email } });
-  }
+  async getUser({ email, id }: { email?: string; id?: string }): Promise<User> {
+    const user = await this.userRespository.getUserBy({ email, id });
 
-  async getUserById(id: string) {
-    return this.prisma.user.findUnique({ where: { id } });
-  }
+    if (!user) throw new RpcException('Пользователь не найден');
 
-  async getUserByUsername(username: string) {
-    return this.prisma.user.findUnique({ where: { username } });
+    return {
+      ...user,
+      avatarUrl: user?.avatarUrl ?? '',
+      createdAt: {
+        seconds: Math.floor(user.createdAt.getTime() / 1000),
+        nanos: Math.floor((user.createdAt.getTime() % 1000) * 1_000_000),
+      },
+      updatedAt: {
+        seconds: Math.floor(user.updatedAt.getTime() / 1000),
+        nanos: Math.floor((user.updatedAt.getTime() % 1000) * 1_000_000),
+      },
+    };
   }
 }

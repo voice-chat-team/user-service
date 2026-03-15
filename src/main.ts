@@ -6,9 +6,11 @@ async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
     AppModule,
     {
-      transport: Transport.TCP,
+      transport: Transport.GRPC,
       options: {
-        port: 50501,
+        package: 'user.v1',
+        protoPath: 'node_modules/@voice-chat/contracts/proto/user.proto',
+        url: 'localhost:50501',
       },
     },
   );

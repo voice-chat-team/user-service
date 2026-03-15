@@ -1,30 +1,30 @@
 import { Controller } from '@nestjs/common';
 import { UserService } from './user.service';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+import { GrpcMethod } from '@nestjs/microservices';
 import {
-  GetUserByEmail,
-  GetUserById,
-  GetUserByUsername,
-  USER_MESSAGE_PATTERNS,
-} from '@voice-chat/contracts';
+  type GetUserByEmailResponse,
+  type GetUserByEmailRequest,
+  type GetUserByIdRequest,
+  type GetUserByIdResponse,
+} from '@voice-chat/contracts/gen/user';
 
 @Controller()
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @MessagePattern(USER_MESSAGE_PATTERNS.GET_BY_EMAIL)
-  getUserByEmail(@Payload() { email }: GetUserByEmail) {
-    console.log(email);
-    return this.userService.getUserByEmail(email);
+  @GrpcMethod('UserService', 'GetUserByEmail')
+  async getUserByEmail({
+    email,
+  }: GetUserByEmailRequest): Promise<GetUserByEmailResponse> {
+    const user = await this.userService.getUser({ email });
+    return { user };
   }
 
-  @MessagePattern(USER_MESSAGE_PATTERNS.GET_BY_ID)
-  getUserByID(@Payload() { userId }: GetUserById) {
-    return this.userService.getUserById(userId.toString());
-  }
-
-  @MessagePattern(USER_MESSAGE_PATTERNS.GET_BY_USERNAME)
-  getUserByUsername(@Payload() { username }: GetUserByUsername) {
-    return this.userService.getUserByUsername(username);
+  @GrpcMethod('UserService', 'GetUserById')
+  async getUserById({
+    userId,
+  }: GetUserByIdRequest): Promise<GetUserByIdResponse> {
+    const user = await this.userService.getUser({ id: userId });
+    return { user };
   }
 }
