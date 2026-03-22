@@ -17,7 +17,7 @@ export class UserController {
     email,
   }: GetUserByEmailRequest): Promise<GetUserByEmailResponse> {
     const user = await this.userService.getUser({ email });
-    return { user };
+    return { user: user ?? undefined };
   }
 
   @GrpcMethod('UserService', 'GetUserById')
@@ -25,6 +25,6 @@ export class UserController {
     userId,
   }: GetUserByIdRequest): Promise<GetUserByIdResponse> {
     const user = await this.userService.getUser({ id: userId });
-    return { user };
+    return { user: user ?? undefined };
   }
 }

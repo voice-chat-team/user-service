@@ -2,15 +2,22 @@ import { Injectable } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { User } from '@voice-chat/contracts/gen/user';
 import { UserRepository } from './user.repository';
+import { status } from '@grpc/grpc-js';
 
 @Injectable()
 export class UserService {
   constructor(private readonly userRespository: UserRepository) {}
 
-  async getUser({ email, id }: { email?: string; id?: string }): Promise<User> {
+  async getUser({
+    email,
+    id,
+  }: {
+    email?: string;
+    id?: string;
+  }): Promise<User | null> {
     const user = await this.userRespository.getUserBy({ email, id });
 
-    if (!user) throw new RpcException('Пользователь не найден');
+    if (!user) return null;
 
     return {
       ...user,
