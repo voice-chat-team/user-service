@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import {
+  GetUserRequest,
   type CreateUserRequest,
   type User,
 } from '@voice-chat/contracts/gen/user';
@@ -11,20 +12,12 @@ import { User as PrismaUser } from 'prisma/generated/client';
 export class UserService {
   constructor(private readonly userRespository: UserRepository) {}
 
-  async getUser({
-    email,
-    id,
-    username,
-  }: {
-    email?: string;
-    id?: string;
-    username?: string;
-  }): Promise<User | null> {
+  async getUser(dto: GetUserRequest): Promise<User | null> {
     try {
       const user = await this.userRespository.getUserBy({
-        email,
-        id,
-        username,
+        id: dto.userId,
+        username: dto.username,
+        email: dto.email,
       });
 
       if (!user) return null;
@@ -33,22 +26,19 @@ export class UserService {
     } catch {
       throw new RpcException({
         code: 5,
-        ditail: 'Пользователь не найден',
+        details: 'Пользователь не найден',
       });
     }
   }
 
   async createUser(dto: CreateUserRequest): Promise<User> {
     try {
-      console.log(dto);
       const user = await this.userRespository.create(dto);
-      console.log(user);
       return this._mapUserEntityToGrpcEntity(user);
-    } catch (error) {
-      console.log(error);
+    } catch {
       throw new RpcException({
         code: 5,
-        ditail: 'Не удалось создать пользователя',
+        details: 'Не удалось создать пользователя',
       });
     }
   }
