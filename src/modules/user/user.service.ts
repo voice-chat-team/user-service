@@ -7,6 +7,7 @@ import {
 } from '@voice-chat/contracts/gen/user';
 import { UserRepository } from './user.repository';
 import { User as PrismaUser } from 'prisma/generated/client';
+import { RpcStatus } from '@voice-chat/common';
 
 @Injectable()
 export class UserService {
@@ -25,7 +26,7 @@ export class UserService {
       return this._mapUserEntityToGrpcEntity(user);
     } catch {
       throw new RpcException({
-        code: 5,
+        code: RpcStatus.NOT_FOUND,
         details: 'Пользователь не найден',
       });
     }
@@ -37,7 +38,7 @@ export class UserService {
       return this._mapUserEntityToGrpcEntity(user);
     } catch {
       throw new RpcException({
-        code: 5,
+        code: RpcStatus.INVALID_ARGUMENT,
         details: 'Не удалось создать пользователя',
       });
     }
