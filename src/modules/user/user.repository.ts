@@ -8,8 +8,15 @@ export class UserRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async getUserBy(whereInput: UserWhereUniqueInput): Promise<User | null> {
-    return await this.prisma.user.findUnique({
-      where: whereInput,
+    return await this.prisma.user.findFirst({
+      where: {
+        OR: [
+          { id: whereInput.id },
+          { username: whereInput.username },
+          { email: whereInput.email },
+          { avatarUrl: whereInput.avatarUrl },
+        ],
+      },
     });
   }
 
